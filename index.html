@@ -3,39 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FutKrillion - Trivia de Rareza Futbolística</title>
+    <title>Futllion - Trivia de Rareza Futbolística</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>⚽ Futllion</h1>
-            <p>Cuanto más de nicho sea tu respuesta acertada, ¡más puntos consigues!</p>
+            <p>¡20 segundos por pregunta! Demuestra tu nivel de nicho.</p>
             <div class="score-board">
                 <span>Puntuación: <strong id="score">0</strong></span>
-                <span id="question-counter">Pregunta 1 de 3</span>
+                <span id="timer-box">⏱️ <strong id="timer">20</strong>s</span>
+                <span id="question-counter">Pregunta 1 de 2</span>
             </div>
         </header>
 
         <main class="game-card">
             <div class="question-box">
                 <h2 id="question-title">Cargando pregunta...</h2>
-                <p id="question-hint">Escribe un nombre y pulsa Enter o Enviar.</p>
+                <p id="question-hint">Escribe tu respuesta antes de que se agote el tiempo.</p>
             </div>
 
             <div class="input-section">
-                <input type="text" id="user-input" placeholder="Ej. George Weah, Messi..." autocomplete="off">
-                <button id="submit-btn">Comprobar</button>
+                <input type="text" id="user-input" placeholder="Escribe un nombre..." autocomplete="off">
+                <button id="submit-btn">Enviar</button>
             </div>
 
             <div id="feedback-message" class="feedback"></div>
-
-            <div class="answered-section">
-                <h3>Jugadores acertados en esta categoría:</h3>
-                <ul id="correct-list"></ul>
-            </div>
-            
-            <button id="next-btn" class="hidden">Siguiente Pregunta ➡️</button>
         </main>
     </div>
 
