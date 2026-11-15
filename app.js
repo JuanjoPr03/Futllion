@@ -27,27 +27,66 @@ const preguntas = [
 
 let indicePregunta = 0;
 let puntuacionTotal = 0;
-let acertadasEnPregunta = new Set();
+let temporizador = null;
+let tiempoRestante = 20;
+let respondido = false;
 
 const questionTitle = document.getElementById("question-title");
 const userInput = document.getElementById("user-input");
 const submitBtn = document.getElementById("submit-btn");
 const feedbackMessage = document.getElementById("feedback-message");
 const scoreEl = document.getElementById("score");
-const correctList = document.getElementById("correct-list");
+const timerEl = document.getElementById("timer");
 const questionCounter = document.getElementById("question-counter");
-const nextBtn = document.getElementById("next-btn");
+
+function iniciarTemporizador() {
+    tiempoRestante = 20;
+    timerEl.textContent = tiempoRestante;
+    respondido = false;
+    
+    clearInterval(temporizador);
+    temporizador = setInterval(() => {
+        tiempoRestante--;
+        timerEl.textContent = tiempoRestante;
+
+        if (tiempoRestante <= 0) {
+            clearInterval(temporizador);
+            tiempoAgotado();
+        }
+    }, 1000);
+}
+
+function tiempoAgotado() {
+    if (respondido) return;
+    respondido = true;
+    userInput.disabled = true;
+    submitBtn.disabled = true;
+
+    feedbackMessage.textContent = "⏰ ¡Se acabó el tiempo! Pasando a la siguiente...";
+    feedbackMessage.className = "feedback error";
+
+    setTimeout(() => {
+        siguientePregunta();
+    }, 2000);
+}
 
 function cargarPregunta() {
+    if (indicePregunta >= preguntas.length) {
+        finalizarJuego();
+        return;
+    }
+
     const actual = preguntas[indicePregunta];
     questionTitle.textContent = actual.enunciado;
     questionCounter.textContent = `Pregunta ${indicePregunta + 1} de ${preguntas.length}`;
     feedbackMessage.textContent = "";
     feedbackMessage.className = "feedback";
     userInput.value = "";
-    correctList.innerHTML = "";
-    acertadasEnPregunta.clear();
-    nextBtn.classList.add("hidden");
+    userInput.disabled = false;
+    submitBtn.disabled = false;
+    userInput.focus();
+
+    iniciarTemporizador();
 }
 
 function normalizar(texto) {
@@ -55,62 +94,58 @@ function normalizar(texto) {
 }
 
 function comprobarRespuesta() {
+    if (respondido) return;
+
     const valor = normalizar(userInput.value);
     if (!valor) return;
+
+    respondido = true;
+    clearInterval(temporizador);
+    userInput.disabled = true;
+    submitBtn.disabled = true;
 
     const actual = preguntas[indicePregunta];
     const encontrado = actual.respuestas.find(r => r.alias.some(a => normalizar(a) === valor));
 
     if (!encontrado) {
-        feedbackMessage.textContent = "❌ Incorrecto o no figura en los registros de esta categoría.";
+        feedbackMessage.textContent = "❌ Incorrecto o no figura en los registros de esta categoría. (0 pts)";
         feedbackMessage.className = "feedback error";
-        return;
+    } else {
+        // Fórmula de rareza inversa: menor popularidad = más puntos
+        const puntosObtenidos = (100 - encontrado.popularidad) + 10;
+        puntuacionTotal += puntosObtenidos;
+        scoreEl.textContent = puntuacionTotal;
+
+        feedbackMessage.textContent = `🎉 ¡Correcto! ${encontrado.nombre} (Rareza: ${encontrado.popularidad}%) -> +${puntosObtenidos} pts`;
+        feedbackMessage.className = "feedback success";
     }
 
-    if (acertadasEnPregunta.has(encontrado.nombre)) {
-        feedbackMessage.textContent = "⚠️ ¡Ya habías dado esta respuesta!";
-        feedbackMessage.className = "feedback error";
-        return;
-    }
+    setTimeout(() => {
+        siguientePregunta();
+    }, 2500);
+}
 
-    acertadasEnPregunta.add(encontrado.nombre);
-    
-    // Fórmula de rareza inversa: menor popularidad = más puntos
-    const puntosObtenidos = (100 - encontrado.popularidad) + 10;
-    puntuacionTotal += puntosObtenidos;
-    scoreEl.textContent = puntuacionTotal;
+function siguientePregunta() {
+    indicePregunta++;
+    cargarPregunta();
+}
 
-    feedbackMessage.textContent = `🎉 ¡Correcto! ${encontrado.nombre} (Rareza: ${encontrado.popularidad}%) -> +${puntosObtenidos} pts`;
-    feedbackMessage.className = "feedback success";
-
-    const li = document.createElement("li");
-    li.innerHTML = `<span>${encontrado.nombre}</span> <strong>+${puntosObtenidos} pts</strong>`;
-    correctList.appendChild(li);
-    userInput.value = "";
-
-    // Si ya acertó todas o queremos permitir avanzar
-    if (acertadasEnPregunta.size >= 2) {
-        nextBtn.classList.remove("hidden");
-    }
+function finalizarJuego() {
+    clearInterval(temporizador);
+    document.querySelector(".game-card").innerHTML = `
+        <div class="question-box" style="text-align: center;">
+            <h2>🏆 ¡Juego completado!</h2>
+            <p style="margin-top: 15px; font-size: 1.1rem;">Tu puntuación final es:</p>
+            <p style="font-size: 2.5rem; color: #38bdf8; font-weight: bold; margin: 15px 0;">${puntuacionTotal} pts</p>
+            <p style="color: #94a3b8;">¡Excelente cultura futbolística!</p>
+            <button onclick="location.reload()" style="margin-top: 20px; width: 100%;">Volver a jugar 🔄</button>
+        </div>
+    `;
 }
 
 submitBtn.addEventListener("click", comprobarRespuesta);
 userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") comprobarRespuesta();
-});
-
-nextBtn.addEventListener("click", () => {
-    indicePregunta++;
-    if (indicePregunta < preguntas.length) {
-        cargarPregunta();
-    } else {
-        questionTitle.textContent = "🏆 ¡Juego completado!";
-        userInput.style.display = "none";
-        submitBtn.style.display = "none";
-        nextBtn.style.display = "none";
-        feedbackMessage.textContent = `Has terminado con una puntuación final de ${puntuacionTotal} puntos. ¡Impresionante cultura futbolística!`;
-        feedbackMessage.className = "feedback success";
-    }
 });
 
 cargarPregunta();
