@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutKrillion - Trivia de Rareza Futbolística</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚽ Futllion</h1>
+            <p>Cuanto más de nicho sea tu respuesta acertada, ¡más puntos consigues!</p>
+            <div class="score-board">
+                <span>Puntuación: <strong id="score">0</strong></span>
+                <span id="question-counter">Pregunta 1 de 3</span>
+            </div>
+        </header>
+
+        <main class="game-card">
+            <div class="question-box">
+                <h2 id="question-title">Cargando pregunta...</h2>
+                <p id="question-hint">Escribe un nombre y pulsa Enter o Enviar.</p>
+            </div>
+
+            <div class="input-section">
+                <input type="text" id="user-input" placeholder="Ej. George Weah, Messi..." autocomplete="off">
+                <button id="submit-btn">Comprobar</button>
+            </div>
+
+            <div id="feedback-message" class="feedback"></div>
+
+            <div class="answered-section">
+                <h3>Jugadores acertados en esta categoría:</h3>
+                <ul id="correct-list"></ul>
+            </div>
+            
+            <button id="next-btn" class="hidden">Siguiente Pregunta ➡️</button>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
